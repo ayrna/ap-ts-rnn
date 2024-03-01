@@ -1,3 +1,5 @@
+<a href="https://colab.research.google.com/github/ayrna/ap2122/blob/main/series_temporales/time_series.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
+
 # Series temporales en Python
 
 Vamos a utilizar fundamentalmente dos bibliotecas:
@@ -169,7 +171,7 @@ plt.xlabel('Year');
 
 
     
-![png](output_8_0.png)
+![png](output_9_0.png)
     
 
 
@@ -188,7 +190,7 @@ df.plot(figsize=(20,10), linewidth=5, fontsize=20)
 
 
     
-![png](output_9_1.png)
+![png](output_10_1.png)
     
 
 
@@ -201,7 +203,7 @@ plt.xlabel('Year', fontsize=20);
 
 
     
-![png](output_10_0.png)
+![png](output_11_0.png)
     
 
 
@@ -272,7 +274,7 @@ ax.legend();
 
 
     
-![png](output_12_1.png)
+![png](output_13_1.png)
     
 
 
@@ -292,7 +294,7 @@ plt.plot(diet_smooth);
 
 
     
-![png](output_14_0.png)
+![png](output_15_0.png)
     
 
 
@@ -309,7 +311,7 @@ plt.xlabel('Year');
 
 
     
-![png](output_16_0.png)
+![png](output_17_0.png)
     
 
 
@@ -324,7 +326,7 @@ plt.xlabel('Year');
 
 
     
-![png](output_18_0.png)
+![png](output_19_0.png)
     
 
 
@@ -369,7 +371,7 @@ plt.xlabel('Year');
 
 
     
-![png](output_20_1.png)
+![png](output_21_1.png)
     
 
 
@@ -383,7 +385,7 @@ plt.xlabel('Year');
 
 
     
-![png](output_22_0.png)
+![png](output_23_0.png)
     
 
 
@@ -418,7 +420,7 @@ plt.xlabel('Year');
 
 
     
-![png](output_26_0.png)
+![png](output_27_0.png)
     
 
 
@@ -466,7 +468,7 @@ plt.tight_layout()
 
 
     
-![png](output_30_0.png)
+![png](output_31_0.png)
     
 
 
@@ -481,7 +483,7 @@ plt.show()
 
 
     
-![png](output_32_0.png)
+![png](output_33_0.png)
     
 
 
@@ -513,7 +515,7 @@ test_stationarity(diet,'raw data')
 
 
     
-![png](output_35_0.png)
+![png](output_36_0.png)
     
 
 
@@ -574,7 +576,7 @@ ADF_test(diet_detrend,'datos sin tendencia')
 
 
     
-![png](output_40_1.png)
+![png](output_41_1.png)
     
 
 
@@ -600,7 +602,7 @@ ADF_test(diet_12lag,'datos con retardo de 12 instantes')
 
 
     
-![png](output_42_1.png)
+![png](output_43_1.png)
     
 
 
@@ -627,7 +629,7 @@ ADF_test(diet_12lag_detrend,'12 lag differenced de-trended data')
 
 
     
-![png](output_44_1.png)
+![png](output_45_1.png)
     
 
 
@@ -650,7 +652,7 @@ autocorrelation_plot(x);
 
 
     
-![png](output_46_0.png)
+![png](output_47_0.png)
     
 
 
@@ -675,7 +677,7 @@ plt.title('Autocorrelation Function')
 
 
     
-![png](output_48_1.png)
+![png](output_49_1.png)
     
 
 
@@ -751,7 +753,7 @@ ses(diet, diet_to_train,diet_to_test,0.8,predict_length)
 
 
     
-![png](output_54_2.png)
+![png](output_55_2.png)
     
 
 
@@ -807,7 +809,7 @@ holt(diet, diet_to_train,diet_to_test,0.6,0.2,predict_length)
 
 
     
-![png](output_58_2.png)
+![png](output_59_2.png)
     
 
 
@@ -899,7 +901,7 @@ holt_win_sea(diet, diet_to_train,diet_to_test,'additive',12, predict_length)
 
 
     
-![png](output_62_2.png)
+![png](output_63_2.png)
     
 
 
@@ -964,7 +966,7 @@ plt.tight_layout()
 
 
     
-![png](output_64_0.png)
+![png](output_65_0.png)
     
 
 
@@ -1033,7 +1035,7 @@ plt.title('RSS: %.4f'% sum((model.fittedvalues-x)**2));
 
 
     
-![png](output_66_2.png)
+![png](output_67_2.png)
     
 
 
@@ -1295,7 +1297,7 @@ model = sarima_eva(diet,(0, 1, 1),(1, 1, 1, 12),52,predict_date,diet_to_test)
 
 
     
-![png](output_72_3.png)
+![png](output_73_3.png)
     
 
 
@@ -1304,7 +1306,7 @@ model = sarima_eva(diet,(0, 1, 1),(1, 1, 1, 12),52,predict_date,diet_to_test)
 
 
     
-![png](output_72_5.png)
+![png](output_73_5.png)
     
 
 
@@ -1313,6 +1315,6 @@ model = sarima_eva(diet,(0, 1, 1),(1, 1, 1, 12),52,predict_date,diet_to_test)
 
 
     
-![png](output_72_7.png)
+![png](output_73_7.png)
     
 
