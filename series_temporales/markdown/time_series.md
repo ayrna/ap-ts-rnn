@@ -5,7 +5,9 @@ Vamos a utilizar fundamentalmente dos bibliotecas:
 - Pandas: https://pandas.pydata.org/pandas-docs/stable/timeseries.html
 - scipy http://www.statsmodels.org/devel/tsa.html
 
-## Estacionaridad
+Si quieres ver las salidas de este cuaderno sin necesidad de ejecutar las celdas, lo tienes exportado a Markdown en este mismo [repositorio](https://github.com/ayrna/ap-ts-rnn/blob/main/series_temporales/markdown/time_series.md).
+
+## Estacionariedad
 
 Un serie temporal (ST) se dice que es estacionaria si sus propiedades estadísticas, tales como la media, la varianza y la covarianza, son constantes a lo largo del tiempo.
 
@@ -13,7 +15,7 @@ Un serie temporal (ST) se dice que es estacionaria si sus propiedades estadísti
 - Varianza constante.
 - La covarianza entre dos instantes depende del número de observaciones que les separan, no del instante de tiempo.
 
-### ¿Que es lo que provoca la no estacionaridad de una ST?.
+### ¿Qué es lo que provoca la no estacionariedad de una ST?
 
 Hay dos razones fundamentales:
 
@@ -39,32 +41,45 @@ import seaborn as sns
 
 
 ```python
+
 # Crear una serie temporal a partir de una lista
 ser = pd.Series([1, 3])
+print("Serie generada con 2 valores y con los índices de 0 a N:")
 print(ser)
 
 # Usar una serie de cadenas como índice
 prices = {'apple': 4.99,
          'banana': 1.99,
-         'orange': 3.99}
+         'orange': 3.99,
+         'apple': 1.99}
 ser = pd.Series(prices)
+print("\nSerie generada con 3 valores y con cadenas como índices:")
 print(ser)
 
 x = pd.Series(np.arange(1,3), index=[x for x in 'ab'])
+print("\nSerie generada con 2 valores y con los índices 'a' y 'b':")
 print(x)
+print("\nValor para la posición 'b':")
 print(x['b'])
 ```
 
+    Serie generada con 2 valores y con los índices de 0 a N:
     0    1
     1    3
     dtype: int64
-    apple     4.99
+    
+    Serie generada con 3 valores y con cadenas como índices:
+    apple     1.99
     banana    1.99
     orange    3.99
     dtype: float64
+    
+    Serie generada con 2 valores y con los índices 'a' y 'b':
     a    1
     b    2
     dtype: int64
+    
+    Valor para la posición 'b':
     2
 
 
@@ -72,7 +87,7 @@ print(x['b'])
 
 Inspirado en: https://www.datacamp.com/community/tutorials/time-series-analysis-tutorial
 
-Utilizaremos los datos de Google Trends de palabras clave como 'diet' y 'gim' para ver como varían a lo largo del tiempo, al mismo tiempo que aprendemos sobre tendencias y estacionalidad en datos de series temporales.
+Utilizaremos los datos de Google Trends de palabras clave como 'diet' y 'gym' para ver como varían a lo largo del tiempo, al mismo tiempo que aprendemos sobre tendencias y estacionalidad en datos de series temporales.
 
 Los datos se corresponden a una sesión del *Facebook Live code* del 4 de enero de 2018. Se comprueban los datos de Google Trends en referencia a 'diet', 'gym' y 'finance' con la idea de ver como varían en función del tiempo. Nos preguntamos si estos términos son más populares en enero, cuando estamos con los propósitos de año nuevo.
 
@@ -92,23 +107,29 @@ try:
 except:
     df = pd.read_csv("./data/multiTimeline.csv", skiprows=2)
 
+print("Mostramos los primeros 5 registros:")
 print(df.head())
 
 # Rename columns
 df.columns = ['month', 'diet', 'gym', 'finance']
 
 # Describe
+print("\nMostramos las principales características estadísticas:")
 print(df.describe())
 
-print(df.info())
+print("\nSe muestra información genérica del df:")
+df.info()
 ```
 
+    Mostramos los primeros 5 registros:
          Month  diet: (Worldwide)  gym: (Worldwide)  finance: (Worldwide)
     0  2004-01                100                31                    48
     1  2004-02                 75                26                    49
     2  2004-03                 67                24                    47
     3  2004-04                 70                22                    48
     4  2004-05                 72                22                    43
+    
+    Mostramos las principales características estadísticas:
                  diet         gym     finance
     count  168.000000  168.000000  168.000000
     mean    49.642857   34.690476   47.148810
@@ -118,6 +139,8 @@ print(df.info())
     50%     48.500000   32.500000   46.000000
     75%     53.000000   41.000000   50.000000
     max    100.000000   58.000000   73.000000
+    
+    Se muestra información genérica del df:
     <class 'pandas.core.frame.DataFrame'>
     RangeIndex: 168 entries, 0 to 167
     Data columns (total 4 columns):
@@ -129,7 +152,6 @@ print(df.info())
      3   finance  168 non-null    int64 
     dtypes: int64(3), object(1)
     memory usage: 5.4+ KB
-    None
 
 
 ## Recodificar los datos
@@ -169,7 +191,7 @@ plt.xlabel('Year');
 
 
     
-![png](output_8_0.png)
+![png](time_series_files/time_series_8_0.png)
     
 
 
@@ -188,20 +210,20 @@ df.plot(figsize=(20,10), linewidth=5, fontsize=20)
 
 
     
-![png](output_9_1.png)
+![png](time_series_files/time_series_9_1.png)
     
 
 
 
 ```python
-# Representar solo una figura
+# Representar solo una serie temporal
 df[['diet']].plot(figsize=(20,10), linewidth=5, fontsize=20)
 plt.xlabel('Year', fontsize=20);
 ```
 
 
     
-![png](output_10_0.png)
+![png](time_series_files/time_series_10_0.png)
     
 
 
@@ -219,7 +241,7 @@ Las medias deslizantes toman, para cada instante de tiempo, la media de los punt
 
 Consultar el siguiente enlace http://pandas.pydata.org/pandas-docs/stable/timeseries.html
 
-El valor 'A' significa frecuencia anual (tomada a final de año)
+El valor `YE` significa frecuencia anual (tomada a final de año: `YearEnd`).
 
 
 ```python
@@ -228,17 +250,35 @@ diet = df['diet']
 print(type(diet.resample('YE')))
 
 diet_resamp_yr = diet.resample('YE').mean()
+print("\nMostramos la media de los primeros cinco años:")
 print(diet_resamp_yr.head())
-diet_roll_yr = diet.rolling(12).mean()
-print(diet_roll_yr.head(20))
+
+# Añadimos el último valor de la serie temporal
+last_index = diet.index[-1]
+last_value = diet.iloc[-1]
+
+series_end = pd.Series([last_value], index=[last_index])
+diet_resamp_yr = pd.concat([diet_resamp_yr, series_end])
+
+# Indicamos min_periods, para evitar valores NaNs al inicio
+diet_roll_yr = diet.rolling(12, min_periods=1).mean()
+print(diet_roll_yr.head(30))
 
 ax = diet.plot(alpha=0.5, style='-') # Guardamos los ejes (ax) para reutilizarlos en el resto de plots
 diet_resamp_yr.plot(style=':', label='Media anual de cada año', ax=ax)
 diet_roll_yr.plot(style='--', label='Media deslizante (más suave), tamaño de ventana=12', ax=ax)
 ax.legend();
+
+# Fechas de fin de cada df:
+print("\nFechas de fin de cada df:")
+print(diet.index[-1])
+print(diet_resamp_yr.index[-1])
+print(diet_roll_yr.index[-1])
 ```
 
     <class 'pandas.core.resample.DatetimeIndexResampler'>
+    
+    Mostramos la media de los primeros cinco años:
     month
     2004-12-31    63.666667
     2005-12-31    51.916667
@@ -247,32 +287,47 @@ ax.legend();
     2008-12-31    44.083333
     Freq: YE-DEC, Name: diet, dtype: float64
     month
-    2004-01-01          NaN
-    2004-02-01          NaN
-    2004-03-01          NaN
-    2004-04-01          NaN
-    2004-05-01          NaN
-    2004-06-01          NaN
-    2004-07-01          NaN
-    2004-08-01          NaN
-    2004-09-01          NaN
-    2004-10-01          NaN
-    2004-11-01          NaN
-    2004-12-01    63.666667
-    2005-01-01    60.666667
-    2005-02-01    58.916667
-    2005-03-01    58.000000
-    2005-04-01    56.833333
-    2005-05-01    55.750000
-    2005-06-01    54.833333
-    2005-07-01    54.250000
-    2005-08-01    53.583333
+    2004-01-01    100.000000
+    2004-02-01     87.500000
+    2004-03-01     80.666667
+    2004-04-01     78.000000
+    2004-05-01     76.800000
+    2004-06-01     74.666667
+    2004-07-01     72.571429
+    2004-08-01     70.875000
+    2004-09-01     68.888889
+    2004-10-01     67.200000
+    2004-11-01     65.636364
+    2004-12-01     63.666667
+    2005-01-01     60.666667
+    2005-02-01     58.916667
+    2005-03-01     58.000000
+    2005-04-01     56.833333
+    2005-05-01     55.750000
+    2005-06-01     54.833333
+    2005-07-01     54.250000
+    2005-08-01     53.583333
+    2005-09-01     53.083333
+    2005-10-01     52.583333
+    2005-11-01     52.083333
+    2005-12-01     51.916667
+    2006-01-01     51.916667
+    2006-02-01     51.666667
+    2006-03-01     51.250000
+    2006-04-01     50.750000
+    2006-05-01     50.000000
+    2006-06-01     49.916667
     Name: diet, dtype: float64
+    
+    Fechas de fin de cada df:
+    2017-12-01 00:00:00
+    2017-12-01 00:00:00
+    2017-12-01 00:00:00
 
 
 
     
-![png](output_12_1.png)
+![png](time_series_files/time_series_12_1.png)
     
 
 
@@ -286,13 +341,13 @@ win_half = int(win / 2)
 #print([((idx-win_half), (idx+win_half)) for idx in np.arange(win_half, len(x))])
 
 diet_smooth = np.array([x[(idx-win_half):(idx+win_half)].mean() for idx in np.arange(win_half, len(x))])
-# Ojo, no estamos saliendo de rango, pero es ignorado por numpy
+# Ojo, nos estamos saliendo de rango, pero es ignorado por numpy
 plt.plot(diet_smooth);
 ```
 
 
     
-![png](output_14_0.png)
+![png](time_series_files/time_series_14_0.png)
     
 
 
@@ -309,7 +364,7 @@ plt.xlabel('Year');
 
 
     
-![png](output_16_0.png)
+![png](time_series_files/time_series_16_0.png)
     
 
 
@@ -324,7 +379,7 @@ plt.xlabel('Year');
 
 
     
-![png](output_18_0.png)
+![png](time_series_files/time_series_18_0.png)
     
 
 
@@ -369,7 +424,7 @@ plt.xlabel('Year');
 
 
     
-![png](output_20_1.png)
+![png](time_series_files/time_series_20_1.png)
     
 
 
@@ -383,7 +438,7 @@ plt.xlabel('Year');
 
 
     
-![png](output_22_0.png)
+![png](time_series_files/time_series_22_0.png)
     
 
 
@@ -404,7 +459,7 @@ print(df.corr())
 Recuerda que tienes un componente estacional y uno de tendencia.
 
 - Los componentes de tendencia parecen estar negativamente correlados.
-- Los componentes estacionales estaría positivamente correlados.
+- Los componentes estacionales estarían positivamente correlados como veremos a continuación.
 
 En realidad, al estar trabajando sobre la serie original, estamos viendo las correlaciones al mismo tiempo.
 
@@ -418,7 +473,7 @@ plt.xlabel('Year');
 
 
     
-![png](output_26_0.png)
+![png](time_series_files/time_series_26_0.png)
     
 
 
@@ -466,7 +521,7 @@ plt.tight_layout()
 
 
     
-![png](output_30_0.png)
+![png](time_series_files/time_series_30_0.png)
     
 
 
@@ -481,7 +536,7 @@ plt.show()
 
 
     
-![png](output_32_0.png)
+![png](time_series_files/time_series_32_0.png)
     
 
 
@@ -501,7 +556,7 @@ def test_stationarity(timeseries, title):
     fig, ax = plt.subplots(figsize=(16, 4))
     ax.plot(timeseries, label= title)
     ax.plot(rolmean, label='media deslizante');
-    ax.plot(rolstd, label='desviación típica deslizante (x10)');
+    ax.plot(rolstd, label='desviación típica deslizante');
     ax.legend()
 ```
 
@@ -513,7 +568,7 @@ test_stationarity(diet,'raw data')
 
 
     
-![png](output_35_0.png)
+![png](time_series_files/time_series_35_0.png)
     
 
 
@@ -535,7 +590,7 @@ def ADF_test(timeseries, dataDesc):
     print('P-value = {:.3f}'.format(dftest[1]))
     print('Valores críticos :')
     for k, v in dftest[4].items():
-        print('\t{}: {} - La serie es {} estacionaria con una confianza de {}%'.format(k, v, 'no' if v<dftest[0] else '', 100-int(k[:-1])))
+        print('\t{}: {} - La serie es {}estacionaria con una confianza de {}%'.format(k, v, 'no ' if v<dftest[0] else '', 100-int(k[:-1])))
 ```
 
 
@@ -574,11 +629,11 @@ ADF_test(diet_detrend,'datos sin tendencia')
 
 
     
-![png](output_40_1.png)
+![png](time_series_files/time_series_40_1.png)
     
 
 
-Aún así no conseguimos estacionariedad. El problema es que aún tenemos la parte estacional. Una forma de eliminarla es realizar una diferenciación utilizando el periodo correspondiente a la estacionalidad (12 meses en este caso).
+Aún así no conseguimos estacionariedad. El problema es que tenemos la parte estacional. Una forma de eliminarla es realizar una diferenciación utilizando el periodo correspondiente a la estacionalidad (12 meses en este caso).
 
 
 ```python
@@ -600,7 +655,7 @@ ADF_test(diet_12lag,'datos con retardo de 12 instantes')
 
 
     
-![png](output_42_1.png)
+![png](time_series_files/time_series_42_1.png)
     
 
 
@@ -621,13 +676,13 @@ ADF_test(diet_12lag_detrend,'12 lag differenced de-trended data')
     P-value = 0.035
     Valores críticos :
     	1%: -3.4816817173418295 - La serie es no estacionaria con una confianza de 99%
-    	5%: -2.8840418343195267 - La serie es  estacionaria con una confianza de 95%
-    	10%: -2.578770059171598 - La serie es  estacionaria con una confianza de 90%
+    	5%: -2.8840418343195267 - La serie es estacionaria con una confianza de 95%
+    	10%: -2.578770059171598 - La serie es estacionaria con una confianza de 90%
 
 
 
     
-![png](output_44_1.png)
+![png](time_series_files/time_series_44_1.png)
     
 
 
@@ -650,11 +705,11 @@ autocorrelation_plot(x);
 
 
     
-![png](output_46_0.png)
+![png](time_series_files/time_series_46_0.png)
     
 
 
-También podemos calcular los valores de ACF:
+También podemos calcular los valores de ACF una vez hayamos quitado la tendencia:
 
 
 ```python
@@ -675,7 +730,33 @@ plt.title('Autocorrelation Function')
 
 
     
-![png](output_48_1.png)
+![png](time_series_files/time_series_48_1.png)
+    
+
+
+Ahora calcularemos el ACF sobre la serie que ya está sin tendencia y sin estacionalidad.
+
+
+
+```python
+x_diff = x_diff - x_diff.shift(12)
+
+lag_acf = acf(x_diff.dropna(), nlags=36, fft=True)
+
+plt.plot(lag_acf)
+plt.title('Autocorrelation Function')
+```
+
+
+
+
+    Text(0.5, 1.0, 'Autocorrelation Function')
+
+
+
+
+    
+![png](time_series_files/time_series_50_1.png)
     
 
 
@@ -701,7 +782,7 @@ predict_length = len(diet) - len(diet[:predict_date]) # Número de datos en test
 
 Adecuado para datos de series temporales sin componentes de tendencia o estacionales.
 
-Este modelo calcula los datos de previsión utilizando medias ponderadas. Un parámetro importante que utiliza este modelo es el parámetro de suavizado: $\alpha$, eligiéndose un valor entre 0 y 1 para determinar el nivel de suavizado. Cuando $\alpha=0$, las previsiones son iguales a la media de los datos históricos.Cuando $\alpha=1$, las previsiones serán iguales al valor de la última observación.
+Este modelo calcula los datos de previsión utilizando medias ponderadas. Un parámetro importante que utiliza este modelo es el parámetro de suavizado: $\alpha$, eligiéndose un valor entre 0 y 1 para determinar el nivel de suavizado. Cuando $\alpha=0$, las previsiones son iguales a la media de los datos históricos. Cuando $\alpha=1$, las previsiones serán iguales al valor de la última observación.
 
 Puede elegir un $\alpha$ específico (por ejemplo, en el código de muestra, utilizaremos $\alpha=0.8$) o utilizar el módulo 'statsmodels' de Python para encontrar automáticamente un valor optimizado para el conjunto de datos.
 
@@ -739,9 +820,9 @@ def ses(y, y_to_train,y_to_test,smoothing_level,predict_length):
 ses(diet, diet_to_train,diet_to_test,0.8,predict_length)
 ```
 
-    /usr/local/lib/python3.11/dist-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: No frequency information was provided, so inferred frequency MS will be used.
+    /usr/local/lib/python3.12/dist-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: No frequency information was provided, so inferred frequency MS will be used.
       self._init_dates(dates, freq)
-    /usr/local/lib/python3.11/dist-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: No frequency information was provided, so inferred frequency MS will be used.
+    /usr/local/lib/python3.12/dist-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: No frequency information was provided, so inferred frequency MS will be used.
       self._init_dates(dates, freq)
 
 
@@ -751,7 +832,7 @@ ses(diet, diet_to_train,diet_to_test,0.8,predict_length)
 
 
     
-![png](output_54_2.png)
+![png](time_series_files/time_series_56_2.png)
     
 
 
@@ -795,9 +876,9 @@ def holt(y,y_to_train,y_to_test,smoothing_level,smoothing_slope, predict_length)
 holt(diet, diet_to_train,diet_to_test,0.6,0.2,predict_length)
 ```
 
-    /usr/local/lib/python3.11/dist-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: No frequency information was provided, so inferred frequency MS will be used.
+    /usr/local/lib/python3.12/dist-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: No frequency information was provided, so inferred frequency MS will be used.
       self._init_dates(dates, freq)
-    /usr/local/lib/python3.11/dist-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: No frequency information was provided, so inferred frequency MS will be used.
+    /usr/local/lib/python3.12/dist-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: No frequency information was provided, so inferred frequency MS will be used.
       self._init_dates(dates, freq)
 
 
@@ -807,7 +888,7 @@ holt(diet, diet_to_train,diet_to_test,0.6,0.2,predict_length)
 
 
     
-![png](output_58_2.png)
+![png](time_series_files/time_series_60_2.png)
     
 
 
@@ -885,21 +966,25 @@ def holt_win_sea(y,y_to_train,y_to_test,seasonal_type,seasonal_period,predict_le
 holt_win_sea(diet, diet_to_train,diet_to_test,'additive',12, predict_length)
 ```
 
-    /usr/local/lib/python3.11/dist-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: No frequency information was provided, so inferred frequency MS will be used.
-      self._init_dates(dates, freq)
-    <ipython-input-34-9d4cf9e2994c>:14: FutureWarning: the 'damped' keyword is deprecated, use 'damped_trend' instead.
-      fit2 = ExponentialSmoothing(y_to_train, seasonal_periods = seasonal_period, trend='add', seasonal='add', damped=True, use_boxcox=True).fit()
-    /usr/local/lib/python3.11/dist-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: No frequency information was provided, so inferred frequency MS will be used.
+    /usr/local/lib/python3.12/dist-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: No frequency information was provided, so inferred frequency MS will be used.
       self._init_dates(dates, freq)
 
 
     Error cuadrático medio de una tendencia aditiva, estacionalidad aditiva con un periodo season_length=12 y una transformación Box-Cox 4.79
-    Error cuadrático medio de una tendencia aditiva amortiguada, estacionalidad aditiva con un periodo season_length=12 y una transformación Box-Cox 4.42
+
+
+    /tmp/ipykernel_9839/891886400.py:14: FutureWarning: the 'damped' keyword is deprecated, use 'damped_trend' instead.
+      fit2 = ExponentialSmoothing(y_to_train, seasonal_periods = seasonal_period, trend='add', seasonal='add', damped=True, use_boxcox=True).fit()
+    /usr/local/lib/python3.12/dist-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: No frequency information was provided, so inferred frequency MS will be used.
+      self._init_dates(dates, freq)
+
+
+    Error cuadrático medio de una tendencia aditiva amortiguada, estacionalidad aditiva con un periodo season_length=12 y una transformación Box-Cox 4.4
 
 
 
     
-![png](output_62_2.png)
+![png](time_series_files/time_series_64_4.png)
     
 
 
@@ -964,7 +1049,7 @@ plt.tight_layout()
 
 
     
-![png](output_64_0.png)
+![png](time_series_files/time_series_66_0.png)
     
 
 
@@ -996,11 +1081,11 @@ plt.plot(model.predict(), color='red')
 plt.title('RSS: %.4f'% sum((model.fittedvalues-x)**2));
 ```
 
-    /usr/local/lib/python3.11/dist-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: No frequency information was provided, so inferred frequency MS will be used.
+    /usr/local/lib/python3.12/dist-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: No frequency information was provided, so inferred frequency MS will be used.
       self._init_dates(dates, freq)
-    /usr/local/lib/python3.11/dist-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: No frequency information was provided, so inferred frequency MS will be used.
+    /usr/local/lib/python3.12/dist-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: No frequency information was provided, so inferred frequency MS will be used.
       self._init_dates(dates, freq)
-    /usr/local/lib/python3.11/dist-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: No frequency information was provided, so inferred frequency MS will be used.
+    /usr/local/lib/python3.12/dist-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: No frequency information was provided, so inferred frequency MS will be used.
       self._init_dates(dates, freq)
 
 
@@ -1008,15 +1093,15 @@ plt.title('RSS: %.4f'% sum((model.fittedvalues-x)**2));
     ==============================================================================
     Dep. Variable:                    gym   No. Observations:                  168
     Model:                 ARIMA(1, 0, 1)   Log Likelihood                -436.852
-    Date:                Mon, 24 Mar 2025   AIC                            881.704
-    Time:                        09:42:56   BIC                            894.200
+    Date:                Fri, 27 Mar 2026   AIC                            881.704
+    Time:                        11:44:30   BIC                            894.200
     Sample:                    01-01-2004   HQIC                           886.776
                              - 12-01-2017                                         
     Covariance Type:                  opg                                         
     ==============================================================================
                      coef    std err          z      P>|z|      [0.025      0.975]
     ------------------------------------------------------------------------------
-    const         36.4287     14.339      2.541      0.011       8.325      64.532
+    const         36.4286     14.339      2.541      0.011       8.325      64.532
     ar.L1          0.9967      0.007    152.509      0.000       0.984       1.009
     ma.L1         -0.7494      0.065    -11.568      0.000      -0.876      -0.622
     sigma2        10.4267      0.860     12.123      0.000       8.741      12.112
@@ -1033,9 +1118,11 @@ plt.title('RSS: %.4f'% sum((model.fittedvalues-x)**2));
 
 
     
-![png](output_66_2.png)
+![png](time_series_files/time_series_68_2.png)
     
 
+
+Aunque los parámetros son significativos (ma.L1 y ar.L1, entre otros), el modelo no es bueno porque los residuos no son ruido blanco (pruebas de Ljung-Box).
 
 ## Modelos SARIMA
 
@@ -1111,70 +1198,70 @@ sarima_grid_search(diet_to_train,12)
 ```
 
     SARIMA(0, 0, 0)x(0, 0, 0, 12) - AIC:1539.7117166318878
-    SARIMA(0, 0, 0)x(0, 0, 1, 12) - AIC:1270.1636301064584
+    SARIMA(0, 0, 0)x(0, 0, 1, 12) - AIC:1270.16363010646
     SARIMA(0, 0, 0)x(0, 1, 0, 12) - AIC:779.2364488732919
     SARIMA(0, 0, 0)x(0, 1, 1, 12) - AIC:639.4551059179271
     SARIMA(0, 0, 0)x(1, 0, 0, 12) - AIC:814.4579980516494
-    SARIMA(0, 0, 0)x(1, 0, 1, 12) - AIC:757.1494598688356
+    SARIMA(0, 0, 0)x(1, 0, 1, 12) - AIC:757.1494598687425
     SARIMA(0, 0, 0)x(1, 1, 0, 12) - AIC:645.552471310262
-    SARIMA(0, 0, 0)x(1, 1, 1, 12) - AIC:633.7901729363539
+    SARIMA(0, 0, 0)x(1, 1, 1, 12) - AIC:633.7901729363928
     SARIMA(0, 0, 1)x(0, 0, 0, 12) - AIC:1373.8235178643586
-    SARIMA(0, 0, 1)x(0, 0, 1, 12) - AIC:1120.7795965476787
+    SARIMA(0, 0, 1)x(0, 0, 1, 12) - AIC:1120.7795965476994
     SARIMA(0, 0, 1)x(0, 1, 0, 12) - AIC:680.5706714281371
-    SARIMA(0, 0, 1)x(0, 1, 1, 12) - AIC:593.3168200400925
-    SARIMA(0, 0, 1)x(1, 0, 0, 12) - AIC:740.838350638387
-    SARIMA(0, 0, 1)x(1, 0, 1, 12) - AIC:674.5417054207767
-    SARIMA(0, 0, 1)x(1, 1, 0, 12) - AIC:603.2449729681534
-    SARIMA(0, 0, 1)x(1, 1, 1, 12) - AIC:584.0622836869289
+    SARIMA(0, 0, 1)x(0, 1, 1, 12) - AIC:593.316820040206
+    SARIMA(0, 0, 1)x(1, 0, 0, 12) - AIC:740.8383506383145
+    SARIMA(0, 0, 1)x(1, 0, 1, 12) - AIC:674.361705524271
+    SARIMA(0, 0, 1)x(1, 1, 0, 12) - AIC:603.2449729681547
+    SARIMA(0, 0, 1)x(1, 1, 1, 12) - AIC:584.0622836866046
     SARIMA(0, 1, 0)x(0, 0, 0, 12) - AIC:946.1555770864771
     SARIMA(0, 1, 0)x(0, 0, 1, 12) - AIC:757.4273302550715
     SARIMA(0, 1, 0)x(0, 1, 0, 12) - AIC:635.7664497936053
     SARIMA(0, 1, 0)x(0, 1, 1, 12) - AIC:556.1380860973852
     SARIMA(0, 1, 0)x(1, 0, 0, 12) - AIC:644.1639154892737
-    SARIMA(0, 1, 0)x(1, 0, 1, 12) - AIC:610.2325145836387
+    SARIMA(0, 1, 0)x(1, 0, 1, 12) - AIC:610.232514583863
     SARIMA(0, 1, 0)x(1, 1, 0, 12) - AIC:561.7195374211069
-    SARIMA(0, 1, 0)x(1, 1, 1, 12) - AIC:536.6212059360965
-    SARIMA(0, 1, 1)x(0, 0, 0, 12) - AIC:904.7547467450331
-    SARIMA(0, 1, 1)x(0, 0, 1, 12) - AIC:734.4074900638055
+    SARIMA(0, 1, 0)x(1, 1, 1, 12) - AIC:536.6212059353819
+    SARIMA(0, 1, 1)x(0, 0, 0, 12) - AIC:904.7547467450522
+    SARIMA(0, 1, 1)x(0, 0, 1, 12) - AIC:734.4074900638097
     SARIMA(0, 1, 1)x(0, 1, 0, 12) - AIC:604.7738792334109
     SARIMA(0, 1, 1)x(0, 1, 1, 12) - AIC:527.9445654124308
-    SARIMA(0, 1, 1)x(1, 0, 0, 12) - AIC:639.6411775157478
-    SARIMA(0, 1, 1)x(1, 0, 1, 12) - AIC:576.8369805632876
-    SARIMA(0, 1, 1)x(1, 1, 0, 12) - AIC:540.8162110387148
-    SARIMA(0, 1, 1)x(1, 1, 1, 12) - AIC:507.922050581123
+    SARIMA(0, 1, 1)x(1, 0, 0, 12) - AIC:639.6411775152437
+    SARIMA(0, 1, 1)x(1, 0, 1, 12) - AIC:576.836980563341
+    SARIMA(0, 1, 1)x(1, 1, 0, 12) - AIC:540.8162110387634
+    SARIMA(0, 1, 1)x(1, 1, 1, 12) - AIC:507.9220505802231
     SARIMA(1, 0, 0)x(0, 0, 0, 12) - AIC:964.7618378205951
     SARIMA(1, 0, 0)x(0, 0, 1, 12) - AIC:767.1981562392543
     SARIMA(1, 0, 0)x(0, 1, 0, 12) - AIC:619.0000050174046
     SARIMA(1, 0, 0)x(0, 1, 1, 12) - AIC:547.5716197714844
-    SARIMA(1, 0, 0)x(1, 0, 0, 12) - AIC:614.8428121656145
-    SARIMA(1, 0, 0)x(1, 0, 1, 12) - AIC:609.4332559320859
-    SARIMA(1, 0, 0)x(1, 1, 0, 12) - AIC:550.4989685636208
-    SARIMA(1, 0, 0)x(1, 1, 1, 12) - AIC:534.8320257609662
-    SARIMA(1, 0, 1)x(0, 0, 0, 12) - AIC:912.0011803288638
-    SARIMA(1, 0, 1)x(0, 0, 1, 12) - AIC:741.2594882712299
+    SARIMA(1, 0, 0)x(1, 0, 0, 12) - AIC:614.8428121633044
+    SARIMA(1, 0, 0)x(1, 0, 1, 12) - AIC:609.4332559318699
+    SARIMA(1, 0, 0)x(1, 1, 0, 12) - AIC:550.498968563849
+    SARIMA(1, 0, 0)x(1, 1, 1, 12) - AIC:534.8320257609691
+    SARIMA(1, 0, 1)x(0, 0, 0, 12) - AIC:912.0011803288658
+    SARIMA(1, 0, 1)x(0, 0, 1, 12) - AIC:741.259488271232
     SARIMA(1, 0, 1)x(0, 1, 0, 12) - AIC:609.8114579454001
-    SARIMA(1, 0, 1)x(0, 1, 1, 12) - AIC:526.6627944514876
-    SARIMA(1, 0, 1)x(1, 0, 0, 12) - AIC:616.2248162231328
-    SARIMA(1, 0, 1)x(1, 0, 1, 12) - AIC:587.1692827542706
+    SARIMA(1, 0, 1)x(0, 1, 1, 12) - AIC:526.6627944510975
+    SARIMA(1, 0, 1)x(1, 0, 0, 12) - AIC:616.2248162231178
+    SARIMA(1, 0, 1)x(1, 0, 1, 12) - AIC:587.1692827525774
     SARIMA(1, 0, 1)x(1, 1, 0, 12) - AIC:536.8412508472641
-    SARIMA(1, 0, 1)x(1, 1, 1, 12) - AIC:517.38358634277
+    SARIMA(1, 0, 1)x(1, 1, 1, 12) - AIC:517.383586341632
     SARIMA(1, 1, 0)x(0, 0, 0, 12) - AIC:925.7886959995585
-    SARIMA(1, 1, 0)x(0, 0, 1, 12) - AIC:744.0007560507646
+    SARIMA(1, 1, 0)x(0, 0, 1, 12) - AIC:744.0007560507647
     SARIMA(1, 1, 0)x(0, 1, 0, 12) - AIC:635.6351223462364
-    SARIMA(1, 1, 0)x(0, 1, 1, 12) - AIC:540.3103739150489
-    SARIMA(1, 1, 0)x(1, 0, 0, 12) - AIC:621.0595077295773
-    SARIMA(1, 1, 0)x(1, 0, 1, 12) - AIC:608.3026483816852
-    SARIMA(1, 1, 0)x(1, 1, 0, 12) - AIC:543.3770206135295
-    SARIMA(1, 1, 0)x(1, 1, 1, 12) - AIC:522.2762924009609
-    SARIMA(1, 1, 1)x(0, 0, 0, 12) - AIC:900.723442804941
-    SARIMA(1, 1, 1)x(0, 0, 1, 12) - AIC:728.185351920883
-    SARIMA(1, 1, 1)x(0, 1, 0, 12) - AIC:606.7042363691135
-    SARIMA(1, 1, 1)x(0, 1, 1, 12) - AIC:528.3216582353081
-    SARIMA(1, 1, 1)x(1, 0, 0, 12) - AIC:594.3569800075583
-    SARIMA(1, 1, 1)x(1, 0, 1, 12) - AIC:576.670925340491
-    SARIMA(1, 1, 1)x(1, 1, 0, 12) - AIC:537.1103221590522
-    SARIMA(1, 1, 1)x(1, 1, 1, 12) - AIC:508.4096805908582
-    El conjunto de parámetros con mínimo AIC es: SARIMA(0, 1, 1)x(1, 1, 1, 12) - AIC:507.922050581123
+    SARIMA(1, 1, 0)x(0, 1, 1, 12) - AIC:540.3103739151016
+    SARIMA(1, 1, 0)x(1, 0, 0, 12) - AIC:621.059507728098
+    SARIMA(1, 1, 0)x(1, 0, 1, 12) - AIC:608.3026483807206
+    SARIMA(1, 1, 0)x(1, 1, 0, 12) - AIC:543.3770206135599
+    SARIMA(1, 1, 0)x(1, 1, 1, 12) - AIC:522.2762924007151
+    SARIMA(1, 1, 1)x(0, 0, 0, 12) - AIC:900.7234428049426
+    SARIMA(1, 1, 1)x(0, 0, 1, 12) - AIC:728.1853519208846
+    SARIMA(1, 1, 1)x(0, 1, 0, 12) - AIC:606.704236370377
+    SARIMA(1, 1, 1)x(0, 1, 1, 12) - AIC:528.3216582354459
+    SARIMA(1, 1, 1)x(1, 0, 0, 12) - AIC:594.3569800076259
+    SARIMA(1, 1, 1)x(1, 0, 1, 12) - AIC:576.6709253479527
+    SARIMA(1, 1, 1)x(1, 1, 0, 12) - AIC:537.1103221588241
+    SARIMA(1, 1, 1)x(1, 1, 1, 12) - AIC:508.4096805907065
+    El conjunto de parámetros con mínimo AIC es: SARIMA(0, 1, 1)x(1, 1, 1, 12) - AIC:507.9220505802231
 
 
 Parece que la combinación de parámetros óptima es `SARIMA(0, 1, 1)x(1, 1, 1, 12)` (menor valor de AIC). Así que vamos a usarla para terminar de entrenar el modelo.
@@ -1188,10 +1275,11 @@ def sarima_eva(y,order,seasonal_order,seasonal_period,pred_date,y_to_test):
                                 order=order,
                                 seasonal_order=seasonal_order,
                                 enforce_stationarity=False,
-                                enforce_invertibility=False)
+                                enforce_invertibility=False,
+                                concentrate_scale=False)
 
     results = mod.fit()
-    print(results.summary().tables[1])
+    print(results.summary())
 
     results.plot_diagnostics(figsize=(16, 8))
     plt.show()
@@ -1246,19 +1334,36 @@ def sarima_eva(y,order,seasonal_order,seasonal_period,pred_date,y_to_test):
 model = sarima_eva(diet,(0, 1, 1),(1, 1, 1, 12),52,predict_date,diet_to_test)
 ```
 
+                                         SARIMAX Results                                      
+    ==========================================================================================
+    Dep. Variable:                               diet   No. Observations:                  168
+    Model:             SARIMAX(0, 1, 1)x(1, 1, 1, 12)   Log Likelihood                -304.958
+    Date:                            Fri, 27 Mar 2026   AIC                            617.916
+    Time:                                    11:44:56   BIC                            629.711
+    Sample:                                01-01-2004   HQIC                           622.709
+                                         - 12-01-2017                                         
+    Covariance Type:                              opg                                         
     ==============================================================================
                      coef    std err          z      P>|z|      [0.025      0.975]
     ------------------------------------------------------------------------------
     ma.L1         -0.5849      0.066     -8.891      0.000      -0.714      -0.456
     ar.S.L12       0.1878      0.077      2.450      0.014       0.038       0.338
-    ma.S.L12      -1.0001    307.916     -0.003      0.997    -604.505     602.505
-    sigma2         3.5951   1107.339      0.003      0.997   -2166.749    2173.939
-    ==============================================================================
+    ma.S.L12      -1.0000    312.105     -0.003      0.997    -612.715     610.714
+    sigma2         3.5951   1122.398      0.003      0.997   -2196.265    2203.455
+    ===================================================================================
+    Ljung-Box (L1) (Q):                   0.44   Jarque-Bera (JB):                19.71
+    Prob(Q):                              0.51   Prob(JB):                         0.00
+    Heteroskedasticity (H):               1.12   Skew:                             0.59
+    Prob(H) (two-sided):                  0.70   Kurtosis:                         4.39
+    ===================================================================================
+    
+    Warnings:
+    [1] Covariance matrix calculated using the outer product of gradients (complex-step).
 
 
 
     
-![png](output_72_1.png)
+![png](time_series_files/time_series_74_1.png)
     
 
 
@@ -1267,7 +1372,7 @@ model = sarima_eva(diet,(0, 1, 1),(1, 1, 1, 12),52,predict_date,diet_to_test)
 
 
     
-![png](output_72_3.png)
+![png](time_series_files/time_series_74_3.png)
     
 
 
@@ -1276,6 +1381,61 @@ model = sarima_eva(diet,(0, 1, 1),(1, 1, 1, 12),52,predict_date,diet_to_test)
 
 
     
-![png](output_72_5.png)
+![png](time_series_files/time_series_74_5.png)
     
 
+
+
+```python
+from statsmodels.tsa.arima.model import ARIMA
+
+# Modelo más general Seasonal ARIMA multiplicativo SARIMAX(p,d,q)x(P,D,Q,s)
+# order=(p,d,q) seasonal_order(P,D,Q,s)
+model = ARIMA(diet,
+              order=(0, 1, 1),
+              seasonal_order=(1, 1, 1, 12),
+              enforce_stationarity=False,
+              enforce_invertibility=False).fit() # fit model
+
+print(model.summary())
+plt.plot(diet)
+plt.plot(model.predict(), color='red')
+plt.title('RSS: %.4f'% sum((model.fittedvalues-diet)**2));
+```
+
+                                        SARIMAX Results                                     
+    ========================================================================================
+    Dep. Variable:                             diet   No. Observations:                  168
+    Model:             ARIMA(0, 1, 1)x(1, 1, 1, 12)   Log Likelihood                -304.958
+    Date:                          Fri, 27 Mar 2026   AIC                            617.916
+    Time:                                  11:44:59   BIC                            629.711
+    Sample:                              01-01-2004   HQIC                           622.709
+                                       - 12-01-2017                                         
+    Covariance Type:                            opg                                         
+    ==============================================================================
+                     coef    std err          z      P>|z|      [0.025      0.975]
+    ------------------------------------------------------------------------------
+    ma.L1         -0.5849      0.066     -8.891      0.000      -0.714      -0.456
+    ar.S.L12       0.1878      0.077      2.450      0.014       0.038       0.338
+    ma.S.L12      -1.0000    312.105     -0.003      0.997    -612.715     610.714
+    sigma2         3.5951   1122.398      0.003      0.997   -2196.265    2203.455
+    ===================================================================================
+    Ljung-Box (L1) (Q):                   0.44   Jarque-Bera (JB):                19.71
+    Prob(Q):                              0.51   Prob(JB):                         0.00
+    Heteroskedasticity (H):               1.12   Skew:                             0.59
+    Prob(H) (two-sided):                  0.70   Kurtosis:                         4.39
+    ===================================================================================
+    
+    Warnings:
+    [1] Covariance matrix calculated using the outer product of gradients (complex-step).
+
+
+
+    
+![png](time_series_files/time_series_75_1.png)
+    
+
+
+Este modelo sí captura la estructura temporal, porque los residuos ya no están autocorrelados (prueba de Ljung-Box).
+
+Hay que tener en cuenta también que quizás la componente ar.S.L12 no es tan necesaria (p-valor no significativo), aunque todo suma.
